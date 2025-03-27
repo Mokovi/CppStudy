@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.15)
+set(CXX_STANDARD_REQUIRED 17)
+project(mome)
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+add_executable(MO ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)

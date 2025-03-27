@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/gamma/cppStudy/01_DifferenceWithC/01_HelloWorld.cpp
+iostream
+-
+cstring
+-
+string
+-
+new
+-
+

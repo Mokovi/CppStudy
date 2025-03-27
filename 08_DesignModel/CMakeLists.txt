@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.15)
+set(CXX_STANDARD_REQUIRED 17)
+project(DM)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+file(GLOB SrList ${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp)
+add_executable(app ${SrList})

@@ -1,0 +1,34 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/gamma/cppStudy/15_Concurrency_Parallelism/source/main.cpp
+iostream
+-
+thread
+-
+mutex
+-
+mutex
+-
+condition_variable
+-
+queue
+-
+condition_variable
+-
+future
+-
+chrono
+-
+atomic
+-
+assert.h
+-
+vector
+-
+

@@ -1,0 +1,3 @@
+/home/gamma/cppStudy/02_Encapsulation/build/CMakeFiles/rebuild_cache.dir
+/home/gamma/cppStudy/02_Encapsulation/build/CMakeFiles/edit_cache.dir
+/home/gamma/cppStudy/02_Encapsulation/build/CMakeFiles/CA.dir

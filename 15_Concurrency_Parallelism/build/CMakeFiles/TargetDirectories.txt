@@ -1,0 +1,3 @@
+/home/gamma/cppStudy/15_Concurrency_Parallelism/build/CMakeFiles/rebuild_cache.dir
+/home/gamma/cppStudy/15_Concurrency_Parallelism/build/CMakeFiles/edit_cache.dir
+/home/gamma/cppStudy/15_Concurrency_Parallelism/build/CMakeFiles/app.dir
