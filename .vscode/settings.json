@@ -55,7 +55,9 @@
         "map": "cpp",
         "set": "cpp",
         "queue": "cpp",
-        "future": "cpp"
+        "future": "cpp",
+        "codecvt": "cpp",
+        "iomanip": "cpp"
     },
     "cmake.ignoreCMakeListsMissing": true
 }
