@@ -36,7 +36,7 @@ class Derived2 : public Base {};
 
 int main(){
     double num = static_cast<double>(10);
-    std::cout << num << std::endl;
+    std::cout << "Static casted number: " << num << std::endl;
 
     Base* base = new Derived();
     Derived* derived = dynamic_cast<Derived*>(base);  // 安全转换
@@ -45,9 +45,12 @@ int main(){
     const int x = 10;
     int* p = const_cast<int*>(&x);  // 移除 const
     *p = 20;  // 未定义行为！x 原本是 const
+    std::cout << "Modified x: " << *p << std::endl;
 
     float f = 3.14f;
     int i = reinterpret_cast<int&>(f);  // 获取浮点数的二进制表示
+    std::cout << "Reinterpreted int: " << i << std::endl;
+    delete base;  // 清理动态分配的内存
 
     return 0;
 }
