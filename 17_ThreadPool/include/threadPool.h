@@ -20,6 +20,33 @@ public:
     template<class F, class... Args>
     auto enqueue(F&& f, Args&&... args) 
         -> std::future<typename std::result_of<F(Args...)>::type>;
+    /*
+        分段解释一下语法：
+            1. F&& f, Args&&... args
+                这是完美转发的参数声明，意思是：
+                    F&& f：以“转发引用（universal reference）”方式接收任务函数。
+                    Args&&... args：同样是转发引用，用于接收任务的参数。
+                    搭配 std::forward 使用，可以保持传入函数及参数的原始左值/右值特性，避免多次拷贝。
+            2. auto ... -> std::future<...> 尾返回类型
+            3. std::result_of<F(Args...)>::type 
+                这是 类型萃取（type traits） 技术：
+                    std::result_of<F(Args...)>::type 表示调用 F(args...) 后的返回类型。
+                    举例：如果 F = int(int, int)，Args 是两个 int，那么这个表达式就是 int。
+            4. typename 
+                    因为 F 和 Args... 是模板参数，std::result_of<F(Args...)> 是依赖于模板参数的 依赖类型（dependent type），
+                那么你必须加上 typename 告诉编译器 “我知道这后面是一个类型”
+            5. 新的写法：
+                c++17: 
+                    1. template<class F, class... Args>
+                        auto enqueue(F&& f, Args&&... args)
+                            -> std::future<decltype(f(args...))>
+                    2. template<class F, class... Args>
+                        auto enqueue(F&& f, Args&&... args) {
+                            using return_type = decltype(f(args...));
+                            std::packaged_task<return_type()> task(std::bind(std::forward<F>(f), std::forward<Args>(args)...));
+                            // ...
+                        }
+    */
 
     // 关闭线程池，等待所有线程结束
     void shutdown();
