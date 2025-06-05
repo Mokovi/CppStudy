@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/gamma/cppStudy/01_DifferenceWithC/01_HelloWorld.cpp
+/home/study/CppStudy/01_DifferenceWithC/01_HelloWorld.cpp
 iostream
 -
 cstring

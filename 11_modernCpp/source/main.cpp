@@ -25,8 +25,7 @@ constexpr int fibonacci2(const int n) {
 /*
 3. auto 还不能用于推导数组类型
     在c++20后auto 关键字可以用在参数表里（之前不可以是因为这样的写法会与模板的功能产生冲突,Lambda函数传参可以）
-4. decltype
-    用法和 typeof 很相似：
+4. decltype 类型推导
         decltype(表达式)
 */
 
@@ -165,11 +164,15 @@ void lambda_expression_capture() {
         除了在模板参数中能使用 ... 表示不定长模板参数外，函数参数也使用同样的表示法代表不定长参数，
     这也就为我们简单编写变长参数函数提供了便捷的手段，例如：
         template<typename... Args> void printf(const std::string &str, Args... args);
-    2）参数解包
+    2) C 语言使用 <stdarg.h> 头文件中的一组宏来实现变长参数：
+        va_list, va_start, va_arg, va_end 等。
+        C++11 引入了变长参数模板，提供了更安全、更灵活的方式来处理变长参数。
+    3）参数解包
         a. 递归模板函数
         b. 变参模板展开
 */
 //递归模版函数进行数据解包
+//方式1 模版特化
 void printf1() {
     std::cout << "End\n";
 }
@@ -178,7 +181,9 @@ void printf1(T first, Args... args) {
     std::cout << first << std::endl;
     printf1(args...);      // 递归调用
 }
+
 //变参模板展开
+//方式2 使用if constexpr
 template<typename T0, typename... T> void printf2(T0 t0, T... t) {
     std::cout << t0 << std::endl;
     if constexpr (sizeof...(t) > 0) printf2(t...);
@@ -187,10 +192,142 @@ void testPrintf(){
     printf1("printf1",1,2);
     printf2("printf2",2,5.4);
 }
+//C语言实现变长参数
+// 实现简单的 printf
+#include <cstdarg>
+void my_printf(const char* format, ...) {
+    va_list ap;
+    va_start(ap, format);
+    
+    for (const char* p = format; *p; p++) {
+        if (*p != '%') {
+            putchar(*p);
+            continue;
+        }
+        
+        switch (*++p) {
+            case 'd': {
+                int i = va_arg(ap, int);
+                printf("%d", i);
+                break;
+            }
+            case 'f': {
+                double d = va_arg(ap, double);
+                printf("%f", d);
+                break;
+            }
+            case 's': {
+                char* s = va_arg(ap, char*);
+                printf("%s", s);
+                break;
+            }
+            default:
+                putchar(*p);
+        }
+    }
+    
+    va_end(ap);
+}
+void testCPrintf() {
+    my_printf("Hello %s, your score is %d and average is %f\n", "Alice", 90, 88.5);
+}
 
 /*
 10. 折叠表达式
-    C++ 17 中将变长参数这种特性进一步带给了表达式
+        C++ 17 中将变长参数这种特性进一步带给了表达式。折叠表达式（Fold Expressions）是 C++17 引入的强大特性，它提供了一种简洁高效的方式来处理参数包（parameter packs），
+    避免了递归模板实例化的复杂性。折叠表达式极大地简化了可变参数模板的操作，使代码更简洁、可读性更强。
+    1）基本语法
+        a. 一元右折叠表达式
+            (expr op ...), 其中 expr 是一个表达式，op 是一个二元操作符。
+            展开为 expr1 op (expr2 op (expr3 op ...))
+        b. 一元左折叠表达式
+            (... op expr), 其中 expr 是一个表达式，op 是一个二元操作符。
+            展开为 ((expr1 op expr2) op expr3) op ...
+        c. 二元右折叠表达式
+            (expr op ... op init), 其中 init 和 expr 是表达式，op 是一个二元操作符。
+            展开为 expr1 op (expr2 op (expr3 op ...(exprN op init)))
+        d. 二元左折叠表达式
+            (init op ... op expr), 其中 init 和 expr 是表达式，op 是一个二元操作符。
+            展开为 ((init op expr1) op expr2) op ... op exprN
+    2）使用场景
+        a. 求和
+            template<typename... Args>
+            auto sum(Args... args) {
+                return (args + ...); // 使用右折叠表达式
+            }
+        b. 逻辑运算
+            template<typename... Args>
+            bool all_true(Args... args) {
+                return (... && args); // 使用左折叠表达式
+            }
+        c.调用多个函数（逗号操作符）
+            template<typename... Funcs>
+            void call_all(Funcs... funcs) {
+                (funcs(), ...); // 使用逗号操作符进行函数调用
+            }
+        d. 组合多个操作（管道模式）
+            template<typename T, typename... Funcs>
+            auto transform(T value, Funcs... funcs) {
+                return (funcs(value), ...); // 右折叠：func3(func2(func1(value)))
+            }
+    3）注意事项
+        a. 折叠表达式在编译时展开，运行时性能等同于手写的展开代码。编译器能生成高度优化的汇编代码，通常比递归模板实现更高效。
+        b. 空包处理：始终考虑空参数包的情况 （例如，sum() 返回 0），避免编译错误或未定义行为。
+        c. 折叠表达式的结果类型由操作符决定，可能需要使用 decltype 或 auto 进行类型推导。
+        d. 值类别：使用完美转发保持值类别一致性，避免不必要的拷贝或移动。
+        e. 左右折叠选择：
+            1. 默认选择左折叠：更符合自然阅读顺序，对大多数操作更直观
+            2. 右折叠适用于需要从左到右处理的操作，如函数调用链 (f(g(x)))、管道等。
+            3. 始终考虑结合律，如减法和除法不满足结合律，可能导致意外结果。
+            4. 复杂表达式添加括号以明确优先级，避免歧义。
+                auto result = (... * (args + 1)); // 每个元素加1后相乘
+            5. 使用静态断言检查
+                static_assert((1 - 2 - 3) == ((1 - 2) - 3), "Subtraction is left-associative");
+*/
+//1. 类型安全的printf
+template<typename... Args>
+void safe_printf(const char* format, Args... args) {
+    auto print_arg = [&](auto arg) {
+        while (*format) {
+            if (*format == '%') {
+                std::cout << arg;
+                format += 2; // 跳过 % 和类型符
+                return;
+            }
+            std::cout << *format++;
+        }
+    };
+    (print_arg(args), ...); // 使用折叠表达式展开参数包
+    //(..., print_arg(args)); // 对每个参数调用 print_arg
+    std::cout << format;    // 输出剩余格式字符串
+}
+void test_safe_printf() {
+    std::cout << "Using safe_printf:\n"; 
+    safe_printf("Hello %1, your score is %2 and average is %3\n", "Alice", 90, 88.5);
+}
+//2. 容器操作
+template<typename Container, typename... Args>
+void emplace_all(Container& c, Args&&... args) {
+    (c.emplace_back(std::forward<Args>(args)), ...);
+}
+void testContainer() {
+    std::vector<std::string> vec;
+    emplace_all(vec, "Hello", "World", "C++");
+}
+//3. 多条件检查
+template<typename T, typename... Predicates>
+bool satisfies_all(const T& value, Predicates... preds) {
+    return (... && preds(value));
+}
+void testMutiConditions() {
+    auto is_even = [](int x) { return x % 2 == 0; };
+    auto positive = [](int x) { return x > 0; };
+    
+    std::cout << satisfies_all(42, is_even, positive); // true
+    std::cout << satisfies_all(-2, is_even, positive); // false
+}
+
+/*
 11. using
     a. 类型别名
         using IntPtr = int*;
@@ -208,16 +345,7 @@ void testPrintf(){
     d. 别名模板（Alias Template）
         template<typename T> using Ptr = T*;          // 定义指针类型的别名
     e. 构造函数继承
-*/
-//折叠表达式
-template<typename ... T> auto sum(T ... args){
-    return (args + ...);
-}
-void testSum(){
-    std::cout << sum(1,2,3,4) <<std::endl;
-}
 
-/*
 12.面向对象
     a.委托构造
         在构造函数中使用用另一个构造函数。
@@ -245,7 +373,7 @@ class Derived : public Base{
 public:
     int value3;
     using Base::Base;//基类的两个构造函数均继承过来了
-    Derived(int v2, int v3):value3(v3), Base::Base(v2){
+    Derived(int v2, int v3):value3(v3), Base::Base(v2){ //委托构造
         std::cout << "3333\n"; 
     }
 };
@@ -301,7 +429,7 @@ int foo5(int a, int b, int c) {
 }
 void testbind() {
     // 将参数1,2绑定到函数 foo 上，
-    // 但使用 std::placeholders::_1 来对第一个参数进行占位
+    // 使用 std::placeholders::_1 来对第一个参数进行占位
     auto bindFoo = std::bind(foo5, std::placeholders::_1, 1,2);
     // 这时调用 bindFoo 时，只需要提供第一个参数即可
     std::cout <<"testbind: " <<  bindFoo(1) << std::endl;
@@ -325,7 +453,7 @@ void testbind() {
                 int&& rref2 = a;          // 错误：a 是左值
                 int&& rref3 = std::move(a); // 正确：强制转换后绑定
     2） 移动语义（Move Semantics）
-        a.深拷贝
+        a. 深拷贝
         b. 移动构造函数（Move Constructor）
         c. 移动赋值运算符（Move Assignment）
     3) std::move
@@ -383,7 +511,7 @@ int main(){
     std::cout << add(3,4) << std::endl;
 
     testPrintf();
-    testSum();
+    test_safe_printf();
     testGz();
     testFunction();
 

@@ -136,7 +136,7 @@ public:
     }
 };
 void testOpFunc(){
-    Adder add5(5);
+    Adder add5(5);//首次调用构造函数
     std::cout << add5(3) << std::endl; // 输出 8（等价于 add5.operator()(3)）
 }
 

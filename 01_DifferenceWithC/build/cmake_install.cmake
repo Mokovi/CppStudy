@@ -1,4 +1,4 @@
-# Install script for directory: /home/gamma/cppStudy/01_DifferenceWithC
+# Install script for directory: /home/study/CppStudy/01_DifferenceWithC
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/gamma/cppStudy/01_DifferenceWithC/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/study/CppStudy/01_DifferenceWithC/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

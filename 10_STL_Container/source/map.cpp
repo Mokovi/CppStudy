@@ -19,8 +19,13 @@ int main() {
     myMap.insert({"David", 40}); // 另一种插入方式
 
     // 遍历 map
-    std::cout << "Map elements: " << std::endl;
+    std::cout << "Map elements by for: " << std::endl;
     for (const auto& pair : myMap) {
+        std::cout << "  " << pair.first << ": " << pair.second << std::endl;
+    }
+    std::cout << "Map elements by it: " << std::endl;
+    for (auto it = myMap.begin(); it != myMap.end(); ++it) {
+        const auto& pair = *it;
         std::cout << "  " << pair.first << ": " << pair.second << std::endl;
     }
 

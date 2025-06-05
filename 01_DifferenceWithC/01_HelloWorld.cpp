@@ -47,10 +47,18 @@ union Data {
 };
 /*
  3、枚举的不同
-        a、不再需要typedef关键字进行省略enum，在设计好枚举后，定义枚举变量时不再需要enum关键字
-        b、是一种独立的数据类型，不能与整形进行自动隐式转换
+        a. 枚举分为两种：传统枚举（enum）和强类型枚举（enum class）
+        c. 传统枚举可以隐式转换为整数类型，强类型枚举不能隐式转换
+        d. 传统枚举可以使用枚举值进行比较，强类型枚举不能直接比较
+        e. 传统枚举的枚举值可以重复，强类型枚举的枚举值不能重复
+        f. 传统枚举的枚举值可以是整数类型，强类型枚举的枚举值必须是枚举类型
 */
 enum Color {
+    RED,
+    GREEN,
+    BLUE
+};
+enum class m_Color {
     RED,
     GREEN,
     BLUE
@@ -191,9 +199,9 @@ int main()
     */
 
     //测试堆
-    //heapMemoryManagement();
+    heapMemoryManagement();
 
-    std::cout << "Sizeof Bool is " << sizeof(bool) << " Byte." <<std::endl;
+    //std::cout << "Sizeof Bool is " << sizeof(bool) << " Byte." <<std::endl;
 
     return 0;
 }

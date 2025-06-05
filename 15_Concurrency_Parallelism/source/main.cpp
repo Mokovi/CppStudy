@@ -94,7 +94,7 @@ void testMutex(){
     std::thread t1(taskPlus), t2(taskMinus);
     t1.join();
     t2.join();
-    std::cout << "num1 = " << num1 << std::endl; //结果不确定，因为++，--均原子性操作，需要用锁
+    std::cout << "num1 = " << num1 << std::endl; //结果不确定，因为++，--均非原子性操作，需要用锁
 
     std::thread t3(taskPlus2), t4(taskMinus2);
     t3.join();
@@ -385,81 +385,92 @@ void testOuttime(){
 #include <atomic>
 #include <assert.h>
 #include <vector>
-//测试重排序
+//1. 测试重排序
 void testReorder(){
-    const int MAX_SIZE = 10;
-    int x[MAX_SIZE] = {0};
-    volatile int flag[MAX_SIZE] = {0};
-    std::vector<std::thread> tasks1, tasks2;
-
-    for (int i = 0; i < MAX_SIZE; i++){
-        tasks1.emplace_back(std::thread([&,i](){
-            x[i] = 40;
-            flag[i] = 1;
-        }));
-        tasks2.emplace_back(std::thread([&,i](){
-            while(!flag[i]);
-            assert(x[i] != 0);
-        }));
-    }
-    for (auto& task : tasks1){
-        task.join();
-    }
-    for (auto& task : tasks2){
-        task.join();
+    int x = 0, y = 0;
+    int r1 = 0, r2 = 0;
+    auto thread1 = [&](){
+        x = 1;
+        r1 = y;
+    };
+    auto thread2 = [&](){
+        y = 1;
+        r2 = x;
+    };
+    int count = 0;
+    while (true) {
+        x = y = r1 = r2 = 0;
+        std::thread t1(thread1);
+        std::thread t2(thread2);
+        t1.join();
+        t2.join();
+        count++;
+        if (r1 == 0 && r2 == 0) {
+            std::cout << "Reordering observed after " << count << " iterations\n";
+            break;
+        }
     }
 }
-//1.relax顺序
+//1.relax顺序 理论上可能出现，但实际基本不会出现
 void testRelaxed(){
-    const int MAX_SIZE = 10000;
-    std::vector<std::atomic<int>> x(MAX_SIZE);
-    std::vector<std::atomic<int>> y(MAX_SIZE);
-    std::vector<std::thread> tasks1, tasks2;
-
-    for (int i = 0; i < MAX_SIZE; i++){
-        tasks1.emplace_back(std::thread([&,i](){
-            x[i].store(1,std::memory_order_relaxed);
-            y[i].store(1,std::memory_order_relaxed);
-        }));
-        tasks2.emplace_back(std::thread([&,i](){
-            if(y[i].load(std::memory_order_relaxed))
-            {
-                assert(x[i].load(std::memory_order_relaxed) == 1);
-            }
-        }));
-    }
-    for (auto& task : tasks1){
-        task.join();
-    }
-    for (auto& task : tasks2){
-        task.join();
+    std::atomic<int> x(0), y(0);
+    std::atomic<int> r1(0), r2(0);
+    auto thread1 = [&](){
+        x.store(1, std::memory_order_relaxed);
+        r1.store(y.load(std::memory_order_relaxed), std::memory_order_relaxed);
+    };
+    auto thread2 = [&](){
+        y.store(1, std::memory_order_relaxed);
+        r2.store(x.load(std::memory_order_relaxed), std::memory_order_relaxed);
+    };
+    int count = 0;
+    while (true) {
+        x.store(0, std::memory_order_relaxed);
+        y.store(0, std::memory_order_relaxed);
+        r1.store(0, std::memory_order_relaxed);
+        r2.store(0, std::memory_order_relaxed);
+        std::thread t1(thread1);
+        std::thread t2(thread2);
+        t1.join();
+        t2.join();
+        count++;
+        if (r1.load(std::memory_order_relaxed) == 0 && r2.load(std::memory_order_relaxed) == 0) {
+            std::cout << "Reordering observed after " << count << " iterations\n";
+            break;
+        }
     }
 }
-
 //2.使用acquire与release配合
 void testAcuRel(){
-    const int MAX_SIZE = 10;
-    std::vector<std::atomic<int>> x(MAX_SIZE);
-    std::vector<std::atomic<int>> y(MAX_SIZE);
-    std::vector<std::thread> tasks1, tasks2;
-
-    for (int i = 0; i < MAX_SIZE; i++){
-        tasks1.emplace_back(std::thread([&,i](){ //i只能值捕获
-            x[i].store(1,std::memory_order_relaxed);
-            y[i].store(1,std::memory_order_release);
-        }));
-        tasks2.emplace_back(std::thread([&,i](){
-            if(y[i].load(std::memory_order_acquire))
-            {
-                assert(x[i].load(std::memory_order_relaxed) == 1);
-            }
-        }));
-    }
-    for (auto& task : tasks1){
-        task.join();
-    }
-    for (auto& task : tasks2){
-        task.join();
+    std::atomic<int> x(0), y(0);
+    std::atomic<int> r1(0), r2(0);
+    auto thread1 = [&](){
+        x.store(1, std::memory_order_release);
+        r1.store(y.load(std::memory_order_acquire), std::memory_order_relaxed);
+    };
+    auto thread2 = [&](){
+        y.store(1, std::memory_order_release);
+        r2.store(x.load(std::memory_order_acquire), std::memory_order_relaxed);
+    };
+    int count = 0;
+    while (true) {
+        x.store(0, std::memory_order_relaxed);
+        y.store(0, std::memory_order_relaxed);
+        r1.store(0, std::memory_order_relaxed);
+        r2.store(0, std::memory_order_relaxed);
+        std::thread t1(thread1);
+        std::thread t2(thread2);
+        t1.join();
+        t2.join();
+        count++;
+        if (r1.load(std::memory_order_relaxed) == 0 && r2.load(std::memory_order_relaxed) == 0) {
+            std::cout << "Reordering observed after " << count << " iterations\n";
+            break;
+        }
+        if (count > 100000) {
+            std::cout << "No reordering observed after " << count << " iterations\n";
+            break;
+        }
     }
 }
 
@@ -473,8 +484,8 @@ int main(){
     //testPackageTask();
     //testOuttime();
     //testReorder();
-    testRelaxed();
-    //testAcuRel();
+    //testRelaxed();
+    testAcuRel();
     return 0;
 }
 

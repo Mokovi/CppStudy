@@ -1,3 +1,3 @@
-/home/gamma/cppStudy/01_DifferenceWithC/build/CMakeFiles/rebuild_cache.dir
-/home/gamma/cppStudy/01_DifferenceWithC/build/CMakeFiles/edit_cache.dir
-/home/gamma/cppStudy/01_DifferenceWithC/build/CMakeFiles/HW.dir
+/home/study/CppStudy/01_DifferenceWithC/build/CMakeFiles/rebuild_cache.dir
+/home/study/CppStudy/01_DifferenceWithC/build/CMakeFiles/edit_cache.dir
+/home/study/CppStudy/01_DifferenceWithC/build/CMakeFiles/HW.dir
