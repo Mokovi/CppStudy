@@ -1,1 +1,0 @@
-/usr/bin/c++     CMakeFiles/app.dir/source/list.cpp.o CMakeFiles/app.dir/source/main.cpp.o CMakeFiles/app.dir/source/vector.cpp.o  -o ../app 

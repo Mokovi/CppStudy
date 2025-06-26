@@ -1,3 +1,0 @@
-/home/gamma/cppStudy/12_RAII_SmartPtr/build/CMakeFiles/rebuild_cache.dir
-/home/gamma/cppStudy/12_RAII_SmartPtr/build/CMakeFiles/edit_cache.dir
-/home/gamma/cppStudy/12_RAII_SmartPtr/build/CMakeFiles/app.dir

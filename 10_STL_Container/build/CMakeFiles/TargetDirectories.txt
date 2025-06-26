@@ -1,3 +1,0 @@
-/home/gamma/cppStudy/10_STL_Container/build/CMakeFiles/rebuild_cache.dir
-/home/gamma/cppStudy/10_STL_Container/build/CMakeFiles/edit_cache.dir
-/home/gamma/cppStudy/10_STL_Container/build/CMakeFiles/app.dir

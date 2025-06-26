@@ -1,3 +1,0 @@
-/home/gamma/cppStudy/04_MemoryPartition_Reference/build/CMakeFiles/rebuild_cache.dir
-/home/gamma/cppStudy/04_MemoryPartition_Reference/build/CMakeFiles/edit_cache.dir
-/home/gamma/cppStudy/04_MemoryPartition_Reference/build/CMakeFiles/MO.dir

@@ -1,3 +1,0 @@
-/home/gamma/cppStudy/03_Inheritance/build/CMakeFiles/rebuild_cache.dir
-/home/gamma/cppStudy/03_Inheritance/build/CMakeFiles/edit_cache.dir
-/home/gamma/cppStudy/03_Inheritance/build/CMakeFiles/app.dir

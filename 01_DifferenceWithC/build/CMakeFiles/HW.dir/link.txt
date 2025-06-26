@@ -1,1 +1,0 @@
-/usr/bin/c++     CMakeFiles/HW.dir/01_HelloWorld.cpp.o  -o ../bin/HW 
